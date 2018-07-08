@@ -5,7 +5,7 @@ import skimage
 from skimage import color
 import bisect
 from PIL import Image
-
+#######first we need to correct it and add after till what we done 
 img=cv2.imread('24.jpg',1)
 #img =skimage.color.rgba2rgb(img)
 img=cv2.cvtColor(img,cv2.COLOR_BGR2YCR_CB)
@@ -14,6 +14,7 @@ img[:,:,0] = cv2.equalizeHist(img[:,:,0])
 img[:,:,0]=cv2.medianBlur(img[:,:,0],5)
 img[:,:,0]=cv2.Laplacian(img[:,:,0],cv2.CV_64F)
 (y,cb,cr)=cv2.split(img)
+################problem starts here y,cb,cr ar 2D matrix and wantedt to do i sent you image to convert ycbcr to rgb
 y=np.matrix(y)
 cb=np.matrix(cb)
 cr=np.matrix(cr)
