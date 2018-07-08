@@ -109,11 +109,88 @@ def contrast(im):
 			im[i,j,2] = (im[i,j,2]-mi_r)*255/(m_r-mi_r)
 			
 	return(im)
+#####this method of contrast is good I decrease  blue<green<red show minimize the blue effect and we can easily change itt
+####READ IT CONTRAST22222222
+##########contrast222222222 starttttttttttttttttt
+# Method to process the red band of the image
+
+def normalizeRed(intensity):
+
+    iI      = intensity
+    minI    = 50
+
+    maxI    = 230
+    minO    = 0
+
+    maxO    = 255
+    iO      = (iI-minI)*(((maxO-minO)/(maxI-minI))+minO)
+
+    return iO
+# Method to process the green band of the image
+
+def normalizeGreen(intensity):
+
+    iI      = intensity
+    minI    = 90
+
+    maxI    = 225
+    minO    = 0
+
+    maxO    = 160 
+    iO      = (iI-minI)*(((maxO-minO)/(maxI-minI))+minO)
+
+    return iO
+# Method to process the blue band of the image
+
+def normalizeBlue(intensity):
+
+    iI      = intensity
+    minI    = 50
+
+    maxI    = 255
+    minO    = 0
+
+    maxO    = 150
+    iO      = (iI-minI)*(((maxO-minO)/(maxI-minI))+minO)
+
+    return iO
+
+ 
+# Create an image object
+
+#imageObject     = Image.open("24.jpg")
+
+imageObject=img 
+
+# Split the red, green and blue bands from the Image
+
+multiBands      = imageObject.split()
+# Apply point operations that does contrast stretching on each color band
+
+normalizedRedBand      = multiBands[0].point(normalizeRed)
+
+normalizedGreenBand    = multiBands[1].point(normalizeGreen)
+
+normalizedBlueBand     = multiBands[2].point(normalizeBlue)
+
+# Create a new image from the contrast stretched red, green and blue brands
+
+normalizedImage = Image.merge("RGB", (normalizedRedBand, normalizedGreenBand, normalizedBlueBand))
+
+# Display the image before contrast stretching
+
+imageObject.show()
+
+# Display the image after contrast stretching
+
+normalizedImage.show()
 
 
+###########################contrast 222222222222222222222 endddddddd
 result1 = adapt_histogram(img)
 cv2.imshow('result1',result1)
-result2 = contrast(result1)
+######################its better to paste here .imageObject=result2
+result2 = contrast(result1)####instead of this
 cv2.imshow('result2',result2)
 smooth = cv2.GaussianBlur(result2,(15,15),0)
 cv2.imshow('smooth',smooth)
