@@ -121,8 +121,45 @@ res = homomorphic(smooth)
 cv2.imshow('result',res)
 
 cv2.waitKey(0)
-cv2.destroyAllWindows()  
+cv2.destroyAllWindows()
+#upper code not working with jpg that 24.jpg image
+#below code is working butby using cv2.imwrite(res24.png,res)
+#not working but running sepearetly pllz link both code  #doooo dude  
+#this code is not working wit
+pimg=cv2.imread('res24.jpg',1)
 
+
+def from_pil(pimg):
+    #pimg = pimg.convert(mode='RGB')
+    nimg = np.asarray(pimg)
+    nimg.flags.writeable = True
+    return(nimg)
+
+
+def stretch_pre(nimg):
+    """
+    from 'Applicability Of White-Balancing Algorithms to Restoring Faded Colour Slides: An Empirical Evaluation'
+    """
+    nimg = nimg.transpose(2, 0, 1)
+    nimg[0] = np.maximum(nimg[0]-nimg[0].min(),0)
+    nimg[1] = np.maximum(nimg[1]-nimg[1].min(),0)
+    nimg[2] = np.maximum(nimg[2]-nimg[2].min(),0)
+    return nimg.transpose(1, 2, 0)
+
+def gray_world(nimg):
+    nimg = nimg.transpose(2, 0, 1).astype(np.uint32)
+    mu_g = np.average(nimg[1])
+    nimg[0] = np.minimum(nimg[0]*(mu_g/np.average(nimg[0])),255)
+    nimg[2] = np.minimum(nimg[2]*(mu_g/np.average(nimg[2])),255)
+    return nimg.transpose(1, 2, 0).astype(np.uint8)
+
+
+
+
+nimg=from_pil(pimg)
+nimg=stretch_pre(nimg)
+final=gray_world(nimg)
+cv2.imwrite('rgbclahegrey24.png',final)
 
 
 
