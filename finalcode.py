@@ -310,7 +310,7 @@ blue_image= merged.copy() # Make a copy
 blue_image[:,:,0] = 0
 blue_image[:,:,1] = 0
 
-##cv2.imshow('img',)
+#cv2.imshow('img',)
 #cv2.imwrite('edges.png',edges)
 cv2.waitKey(0)
 
