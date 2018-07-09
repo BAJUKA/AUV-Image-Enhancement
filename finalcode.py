@@ -315,4 +315,4 @@ cv2.imshow('img',edges)
 cv2.imwrite('edges.png',edges)
 cv2.waitKey(0)
 
-cv2.destroyAllWindows()#########remaig add later
+cv2.destroyAllWindows()#########remaining add later
