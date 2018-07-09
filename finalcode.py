@@ -309,10 +309,9 @@ merged.show()
 blue_image= merged.copy() # Make a copy
 blue_image[:,:,0] = 0
 blue_image[:,:,1] = 0
-edges = cv2.Canny(blue_image,100,200)
 
-cv2.imshow('img',edges)
-cv2.imwrite('edges.png',edges)
+##cv2.imshow('img',)
+#cv2.imwrite('edges.png',edges)
 cv2.waitKey(0)
 
 cv2.destroyAllWindows()#########remaining add later
