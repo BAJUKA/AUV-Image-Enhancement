@@ -4,19 +4,18 @@ import matplotlib.pyplot as plt
 from skimage import restoration
 from PIL import Image
 
-
-img = cv2.imread('images/2.png',-1)
+# Reading the image and reshaping it
+img = cv2.imread('images/5.png',-1)
 rows,cols,dim=img.shape
 (b,g,r,a) = cv2.split(img)
 result = np.zeros((rows,cols,3))
 result = cv2.merge([b,g,r])
-
 img = result
 img = cv2.resize(img,(512,512))
 cv2.imshow('image',img)
 
 
-
+# code for homomorphic filter
 def homomorphic(img):
 
 	img = np.float32(img)
@@ -26,7 +25,7 @@ def homomorphic(img):
 	#rh,rl are high frequency and low frequency gain respectively.the cutoff 32 is kept for 512,512 images
 	#but it seems to work fine otherwise
 
-	rh, rl, cutoff = 1.95,0.9,32
+	rh, rl, cutoff = 1.3,0.8,32
 	b,g,r = cv2.split(img)
 	y_log_b = np.log(b+0.01)
 	y_log_g = np.log(g+0.01)
@@ -46,7 +45,7 @@ def homomorphic(img):
 	B = np.ones((rows,cols))
 	for i in range(rows):
 		for j in range(cols):
-			H[i][j]=((rh-rl)*(1-np.exp(-((i-rows/2)**2+(j-cols/2)**2)/(2*D0**2))))+rl
+			H[i][j]=((rh-rl)*(1-np.exp(-((i-rows/2)**2+(j-cols/2)**2)/(2*D0**2))))+rl #DoG filter
 
 
 	result_filter_b = H * y_fft_shift_b
@@ -76,16 +75,11 @@ def homomorphic(img):
 		if x < mi:
 			mi = x
 
-	#print(mi)
-	#print(result[0,0,:])
-	
-	#print(result[0,0,:])
-	#result = np.uint8(result)
 	#norm_image = cv2.normalize(result,None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-	result = result
+	
 	return(result)
 
-    	
+#code for adaptive histogram equalization   	
 def adapt_histogram(img):
 
 	img_yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
@@ -95,52 +89,47 @@ def adapt_histogram(img):
 
 	return(result)
 
-######contrast sttttttttttttarttttttttttt
+###### code contrast adjustment ##### 
 def normalizeRed(img):
-#50,230 
+ 
     minI    = min(np.ravel(img))
     maxI    = max(np.ravel(img))
     print(minI,maxI)
-    minO    = 1
+    minO    = 0
     maxO    = 255
 
-    #iO      = (iI-minI)*(((maxO-minO)/(maxI-minI))+minO)
     for i in range(img.shape[0]):
     	for j in range(img.shape[1]):
     		img[i,j] = (img[i,j]-minI)*(((maxO-minO)/(maxI-minI))+minO)
 
     return img
 
-# Method to process the green band of the image
+
 
 def normalizeGreen(img):
-#90,225
+
     minI    = min(np.ravel(img))
     maxI    = max(np.ravel(img))
     print(minI,maxI)
     minO    = 0
     maxO    = 235
 
-    #iO      = (iI-minI)*(((maxO-minO)/(maxI-minI))+minO)
     for i in range(img.shape[0]):
     	for j in range(img.shape[1]):
     		img[i,j] = (img[i,j]-minI)*(((maxO-minO)/(maxI-minI))+minO)
 
     return img
 
- 
 
-# Method to process the blue band of the image
 
 def normalizeBlue(img):
-#50,255
+
     minI    = min(np.ravel(img))
     maxI    = max(np.ravel(img))
     print(minI,maxI)
     minO    = 0
     maxO    = 245
 
-    #iO      = (iI-minI)*(((maxO-minO)/(maxI-minI))+minO)
     for i in range(img.shape[0]):
     	for j in range(img.shape[1]):
     		img[i,j] = (img[i,j]-minI)*(((maxO-minO)/(maxI-minI))+minO)
@@ -150,63 +139,29 @@ def normalizeBlue(img):
 
 result1 = adapt_histogram(img)
 imageObject=result1
-
-
-# Split the red, green and blue bands from the Image
-
-#multiBands = imageObject.split()
 b,g,r = cv2.split(imageObject)
 
-# Apply point operations that does contrast stretching on each color band
 
 normalizedRedBand      = normalizeRed(r)
 normalizedGreenBand    = normalizeGreen(g)
 normalizedBlueBand     = normalizeBlue(b)
 
- 
-
-# Create a new image from the contrast stretched red, green and blue brands
-
-#normalizedImage = Image.merge("RGB", (normalizedRedBand, normalizedGreenBand, normalizedBlueBand))
 normalizedImage = cv2.merge([normalizedBlueBand,normalizedGreenBand,normalizedRedBand])
+normalizedImage = adapt_histogram(normalizedImage)
+res = cv2.GaussianBlur(normalizedImage,(11,11),0)
 
-# Display the image before contrast stretching
+cv2.imshow('after contrast',res)
 
-cv2.imshow('before contrast',imageObject)
-# Display the image after contrast stretching
-cv2.imshow('after contrast',normalizedImage)
-###################end contrastt
 
 result2 = normalizedImage
-
 smooth = result2 
 res = homomorphic(smooth)
-res = cv2.GaussianBlur(result2,(7,7),0)
-img = res
-#img=cv2.cvtColor(res,cv2.COLOR_BGR2YCR_CB)
-#img[:,:,0] = cv2.equalizeHist(img[:,:,0])
-#img[:,:,0]=cv2.medianBlur(img[:,:,0],5)
-'''img[:,:,0]=cv2.Laplacian(img[:,:,0],cv2.CV_64F)
-(y,cb,cr)=cv2.split(img)#y cb,cr are 2D matrix so problem is here #####error3
-y=np.matrix(y)
-cb=np.matrix(cb)
-cr=np.matrix(cr)
-X=np.matrix([y,cb,cr])
-Y=np.matrix([[16],[128],[128]])
-P=np.matrix([[0.0046,0.0000,0.0063],[0.0046,-0.0015,0.0032],[0.0046,0.0079,0.0000]])
-rgb=np.matrix([[ ],[ ],[ ]])
-rgb=np.matmul(P,X-Y)
-r=rgb[0,0]
-b=rgb[1,0]
-g=rgb[2,0]
-merged=Image.merge("RGB",(r,g,b))
-merged.show()
-blue_image= merged.copy() # Make a copy
-blue_image[:,:,0] = 0
-blue_image[:,:,1] = 0'''
+res = cv2.GaussianBlur(res,(11,11),0)
+img0 = res
 
-cv2.imshow('final img',img)
-#cv2.imwrite('edges.png',edges)
+
+
+
+cv2.imshow('final img',img0)
 cv2.waitKey(0)
-
-cv2.destroyAllWindows()#########remaining add later
+cv2.destroyAllWindows()

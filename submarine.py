@@ -1,4 +1,4 @@
-ort cv2
+import cv2
 
 import numpy as np
 
@@ -12,7 +12,7 @@ from PIL import Image
 
 
 
-img = cv2.imread('auv-underwater.jpg',-1)
+img = cv2.imread('images/10.jpg',-1)
 
 rows,cols,dim=img.shape
 
