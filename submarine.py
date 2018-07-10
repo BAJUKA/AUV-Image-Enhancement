@@ -381,6 +381,42 @@ log=cv2.Laplacian(res3,cv2.CV_64F)
 cv2.imshow('cannyimg2',canny)
 cv2.imshow('logimg2',log)
 
+for i in range(log.shape[0]):
+
+    	for j in range(log.shape[1]):
+
+    		
+    		if np.any(log[i,j]>0):
+    			log[i,j]=255
+
+
+logpix=log
+
+cv2.imshow('logpix',logpix)
+cv2.imwrite('logpi.jpg',logpix)
+#final = cv2.medianBlur(logpix, 5)
+#cv2.imshow('logpix2',final)
+def wiener_filter(img, kernel=np.matrix([[0,0,-1,0,0],[0,-1,-2,-1,0],[-1,-2,16,-2,-1],[0,-1,-2,-1,0],[0,0,-1,0,0]]), K = 5):
+    dummy = np.copy(img)
+    #kernel=[[0,0,-1,0,0],[0,-1,-2,-1,0],[-1,-2,16,-2,-1],[0,-1,-2,-1,0],[0,0,-1,0,0]]
+    kernel = np.pad(kernel, [(0, dummy.shape[0] - kernel.shape[0]), (0, dummy.shape[1] - kernel.shape[1])], 'constant')
+    # Fourier Transform
+    dummy = fft2(dummy)
+    kernel = fft2(kernel)
+    kernel = np.conj(kernel) / (np.abs(kernel) ** 2 + K)
+    dummy[:,:,0] = dummy[:,:,0] * kernel
+    dummy[:,:,1] = dummy[:,:,1] * kernel
+    dummy[:,:,2] = dummy[:,:,2] * kernel
+    dummy = np.abs(ifft2(dummy))
+    return np.uint8(dummy)
+
+
+logwer=wiener_filter(logpix) 
+cv2.imshow('logwer',logwer)
+#cv2.imwrite('logimg.jpg',log)
+cv2.waitKey(0)
+######33we observe canny is doing better than log or get bette kernel
+cv2.destroyAllWindows()
 
 
 
@@ -388,7 +424,4 @@ cv2.imshow('logimg2',log)
 
 
 
-#cv2.imwrite('logimg.jpg',log)
-cv2.waitKey(0)
 
-cv2.destroyAllWindows()
