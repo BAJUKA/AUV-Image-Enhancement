@@ -240,7 +240,7 @@ def normalizeGreen(img):
 
     minO    = 0
 
-    maxO    = 235
+    maxO    = 255
 
 
 
